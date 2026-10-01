@@ -88,3 +88,4 @@ Thumbs.db
 !data/md/systems/*/npt.gro
 !data/md/systems/*/npt.cpt
 !data/md/topologies/ligands/*.mol2
+#topol.top.*#
