@@ -148,3 +148,9 @@ data/md/systems/EAI045_analog_2/
 data/md/systems/JBJ-04-125-02/
 data/md/topologies/ligands/*_leap.in
 data/results/poses/
+# ACPYPE / antechamber working files (regenerable)
+ANTECHAMBER_*
+ATOMTYPE.INF
+sqm.*
+.acpype_tmp_*/
+*.acpype/
