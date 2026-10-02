@@ -1,4 +1,6 @@
-# ============ Python ============
+# ============================================================
+# Python
+# ============================================================
 __pycache__/
 *.pyc
 *.pyo
@@ -7,78 +9,122 @@ __pycache__/
 .venv/
 env/
 
-# ============ ACPYPE / Antechamber junk ============
+# ============================================================
+# Raw and processed data (regeneratable from PDB IDs)
+# ============================================================
+data/raw/
+data/processed/
+
+# ============================================================
+# Ligand parameterization intermediates
+# ============================================================
+data/md/topologies/ligands/*_acpype.log
+data/md/topologies/ligands/*_leap.log
+data/md/topologies/ligands/leap.log
+data/md/topologies/ligands/*.inpcrd
+data/md/topologies/ligands/*.prmtop
+data/md/topologies/ligands/*_leap.pdb
+data/md/topologies/ligands/*_fromsmiles.pdb
+data/md/topologies/ligands/*_raw.pdb
+data/md/topologies/ligands/*_clean.pdb
+data/md/topologies/ligands/*_opt.pdb
+data/md/topologies/ligands/*_translated.pdb
+data/md/topologies/ligands/*.frcmod
+data/md/topologies/ligands/*.acpype/
+data/md/topologies/ligands/*.amb2gmx/
+
+# ============================================================
+# ACPYPE / Antechamber working junk
+# ============================================================
 ANTECHAMBER_*
 ATOMTYPE.INF
 sqm.*
 *.acpype/
-*.amb2gmx/
 .acpype_tmp_*/
-*.inpcrd
-*.prmtop
-*_fromsmiles.pdb
-*_raw.pdb
-*_opt.pdb
-*_clean.pdb
-*_leap.pdb
-*.frcmod
-*_leap.log
-*_leap.in
 
-# ============ GROMACS junk ============
+# ============================================================
+# GROMACS junk / intermediates
+# ============================================================
 #topol.top.*#
 #egfr_processed.gro.*#
-*.mdp.bak
 grompp*.log
 mdrun*.log
+data/md/#*.gro.*#
+data/md/egfr_processed.gro
+data/md/posre*.itp
+data/md/topol*.itp
+data/md/topol.top
+data/md/*_atomtypes.itp
 
-# ============ Broken/Excluded Systems ============
-data/md/broken_systems/
-data/md/systems/JBJ-04-125-02/
-data/md/systems/EAI045_analog_2/
-data/md/topologies/ligands/JBJ-04-125-02*
-data/md/topologies/ligands/EAI045_analog_2*
-data/md/topologies/ligands/posre_*
-
-# ============ Raw / Large Data ============
-data/raw/*.pdb
-data/raw/*.fasta
-data/processed/*.pdb
-data/processed/*.pdbqt
-data/processed/ligands/
-data/results/poses/
-data/results/test/
-
-# ============ MD Heavy Files (skip trajectories) ============
-data/md/systems/*/*.xtc
-data/md/systems/*/*.trr
+# MD system working files (KEEP the final .gro and .cpt files)
 data/md/systems/*/solv.gro
 data/md/systems/*/solv_ions.gro
 data/md/systems/*/box.gro
 data/md/systems/*/ions.tpr
 data/md/systems/*/*.edr
+data/md/systems/*/*.log
+data/md/systems/*/mdout.mdp
+data/md/systems/*/index.ndx
+data/md/systems/*/plip_gmx.ndx
 
-# ============ Complex intermediates ============
-data/md/complexes/*_ligand.pdb
-data/md/complexes/*_clean.pdb
-data/md/complexes/*_translated.pdb
+# ============================================================
+# MD trajectories (regeneratable, huge)
+# ============================================================
+data/md/systems/*/*.xtc
+data/md/systems/*/*.trr
+data/md/mmpbsa/*/npt.gro
+data/md/mmpbsa/*/npt.xtc
+data/md/mmpbsa/*/npt.tpr
+data/md/mmpbsa/*/*.ndx
+data/md/mmpbsa/*/*.itp
+data/md/mmpbsa/*/topol.top
+data/md/mmpbsa/*/posre.itp
+data/md/mmpbsa/*/*.h5
+data/md/mmpbsa/*/gmx_MMPBSA.log
+data/md/mmpbsa/*/_GMXMMPBSA_*.log
+
+# ============================================================
+# PLIF intermediates
+# ============================================================
+data/md/plip/structures/
+data/md/plip/*/npt_dry.*
+data/md/plip/*/*.pdb
+data/md/plip/*/*.xtc
+data/md/plif/*/npt_dry.*
+data/md/plif/*/*.pdb
+data/md/plif/*/*.xtc
+
+# ============================================================
+# Complexes intermediates
+# ============================================================
 data/md/complexes/*.pdbqt
+data/md/broken_systems/
 
-# ============ Logs ============
+# ============================================================
+# Logs
+# ============================================================
 logs/
 
-# ============ OS ============
+# ============================================================
+# OS junk
+# ============================================================
 .DS_Store
 Thumbs.db
 *.swp
 *~
 
-# ============ Editor ============
+# ============================================================
+# Editor
+# ============================================================
 .vscode/
 .idea/
 
-# ============ KEEP: small important files ============
-!data/md/mdp/*.mdp
+# ============================================================
+# EXPLICITLY KEEP (small scientific outputs)
+# ============================================================
+!data/results/*.csv
+!data/results/*.png
+!data/md/mdp/
 !data/md/systems/*/topol.top
 !data/md/systems/*/complex.gro
 !data/md/systems/*/*.itp
@@ -87,5 +133,18 @@ Thumbs.db
 !data/md/systems/*/nvt.cpt
 !data/md/systems/*/npt.gro
 !data/md/systems/*/npt.cpt
+!data/md/mmpbsa/*/FINAL_RESULTS.dat
+!data/md/mmpbsa/*/FINAL_RESULTS.csv
+!data/md/mmpbsa/*.png
+!data/md/plip/results/*.csv
+!data/md/plip/results/*.png
+!data/md/plip/results/*.xml
 !data/md/topologies/ligands/*.mol2
-#topol.top.*#
+
+# ==== Final pass — resolve all remaining untracked ====
+data/md/complexes/
+data/md/plif/
+data/md/systems/EAI045_analog_2/
+data/md/systems/JBJ-04-125-02/
+data/md/topologies/ligands/*_leap.in
+data/results/poses/
