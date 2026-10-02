@@ -1,0 +1,12 @@
+Residue_EGFR,Interaction,EAI001,EAI045,decoy_0086,decoy_0454
+ASP855,HBond,1,0,2,1
+ASP855,Hydrophobic,0,0,0,1
+LEU718,Hydrophobic,0,0,2,0
+LEU858,Hydrophobic,0,1,0,0
+LYS745,HBond,0,1,1,0
+LYS745,Hydrophobic,0,1,0,0
+MET790,Hydrophobic,0,0,0,1
+PHE723,Hydrophobic,1,0,1,0
+PHE856,HBond,0,1,0,0
+PHE856,Hydrophobic,2,1,0,2
+VAL726,Hydrophobic,0,0,1,0
