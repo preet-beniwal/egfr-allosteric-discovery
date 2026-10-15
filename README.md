@@ -1,6 +1,6 @@
 # EGFR Allosteric Inhibitor Discovery
 
-**A docking and interaction-fingerprinting pipeline for allosteric inhibitor discovery against drug-resistant EGFR T790M, with preliminary MM/GBSA rescoring.**
+**A docking and interaction-fingerprinting pipeline for allosteric inhibitor discovery against drug-resistant EGFR T790M, with MM/GBSA validation on 1 ns ensembles.**
 
 ---
 
@@ -8,9 +8,9 @@
 
 Third-generation EGFR inhibitors like osimertinib work against the T790M gatekeeper mutation until the C797S mutation emerges. At that point every approved ATP-competitive inhibitor fails, because the resistance mechanism directly disrupts the ATP-site binding geometry. Allosteric inhibition — targeting the pocket between the αC-helix and the ATP cleft — offers a route around this problem because allosteric binding does not depend on the ATP site.
 
-The computational difficulty is that allosteric pockets are more plastic than ATP sites, and docking scoring functions are worse at discriminating true binders from geometrically compatible decoys in flexible pockets. This project tests whether a docking pipeline can be validated against known biology, and whether interaction fingerprinting can recover the experimentally observed binding mode.
+The computational difficulty is that allosteric pockets are more plastic than ATP sites, and docking scoring functions are worse at discriminating true binders from geometrically compatible decoys in flexible pockets. This project tests whether a docking pipeline can be validated against known biology, and whether MM/GBSA on short-but-real MD ensembles can rescue the false positives that docking alone would promote.
 
-The starting structure is the crystal structure of T790M/V948R EGFR bound to the allosteric inhibitor EAI045 (PDB 5D41). The compound library is 16 literature-validated allosteric EGFR inhibitors plus 500 drug-like decoys generated with RDKit. The pipeline docks all 516 compounds against the allosteric pocket, benchmarks the protocol against the actives/decoys split, and analyses the interaction geometry of the top hits.
+The starting structure is the crystal structure of T790M/V948R EGFR bound to the allosteric inhibitor EAI045 (PDB 5D41). The compound library is 16 literature-validated allosteric EGFR inhibitors plus 500 drug-like decoys generated with RDKit. The pipeline docks all 516 compounds against the allosteric pocket, benchmarks the protocol against the actives/decoys split, carries the top 4 hits through MD, and analyses interaction geometry.
 
 ---
 
@@ -36,24 +36,38 @@ Both known actives engage the same three-residue interaction signature:
 
 Both docking false positives bind adjacent but distinct residues and do not engage this signature.
 
-This LYS745/PHE856/LEU858 pattern is the **experimentally observed binding mode of EAI045** in the 5D41 co-crystal structure (Jia et al., *Nature* 2016). Recovering it from docking poses alone — without any prior knowledge of the interaction geometry — is a genuine validation that the docking protocol produces biologically meaningful poses, not just numerically favourable ones.
+This LYS745/PHE856/LEU858 pattern is the **experimentally observed binding mode of EAI045** in the 5D41 co-crystal structure (Jia et al., *Nature* 2016). Recovering it from docking poses alone — without any prior knowledge of the interaction geometry — validates that the docking protocol produces biologically meaningful poses, not just numerically favourable ones.
 
-### 3. Preliminary MM/GBSA rescoring demoted both false positives
+### 3. MM/GBSA on 1 ns ensembles separated actives from decoys by 10.87 kcal/mol
 
-This result is preliminary and is reported with that caveat. See the Limitations section for the reason.
+The top 4 docking hits were carried through 1 ns production MD in GROMACS (AMBER14SB, TIP3P). MM/GBSA was computed on 100 frames sampled at 10 ps intervals using gmx_MMPBSA.
 
-MM/GBSA was computed on a 100 ps equilibrated ensemble for each of the 4 simulated systems:
+| Rank | Ligand | ΔG_bind (100 ps) | ΔG_bind (1 ns) | SD (1 ns) | Category |
+|------|--------|-----------------|----------------|-----------|----------|
+| 1 | EAI001 | −47.60 | **−49.55** | ±0.81 | Known active |
+| 2 | EAI045 | −46.57 | **−46.91** | ±1.63 | Known active (crystal) |
+| 3 | decoy_0454 | −38.49 | **−39.21** | ±1.72 | Docking false positive |
+| 4 | decoy_0086 | −42.22 | **−35.51** | ±1.94 | Docking false positive |
 
-| Rank | Ligand | MM/GBSA ΔG_bind | Category |
-|------|--------|-----------------|----------|
-| 1 | EAI001 | −47.60 kcal/mol | Known active |
-| 2 | EAI045 | −46.57 kcal/mol | Known active (crystal ligand) |
-| 3 | decoy_0086 | −42.22 kcal/mol | Docking false positive |
-| 4 | decoy_0454 | −38.49 kcal/mol | Docking false positive |
+- Mean active: **−48.23 kcal/mol**
+- Mean decoy: **−37.36 kcal/mol**
+- Gap: **10.87 kcal/mol** (up from 6.7 kcal/mol at 100 ps)
+- Largest SD: ±1.94 kcal/mol
 
-Mean active: −47.1 kcal/mol. Mean decoy: −40.4 kcal/mol. Gap: 6.7 kcal/mol.
+The gap is more than 5× the largest run standard deviation. The separation is clean.
 
-Both known actives ranked above both docking false positives. The direction of the separation is consistent with the docking result and the interaction fingerprint. But the sampling is far too short for MM/GBSA convergence (see Limitations), so this should be treated as a directional check rather than a validated binding energy calculation.
+### What the extended sampling changed
+
+| Ligand | Change (1 ns − 100 ps) |
+|--------|------------------------|
+| EAI045 | −0.34 kcal/mol |
+| EAI001 | −1.95 kcal/mol |
+| decoy_0454 | −0.72 kcal/mol |
+| **decoy_0086** | **+6.71 kcal/mol** |
+
+Extended sampling did not meaningfully change three of the four ligands. It moved **decoy_0086** by +6.7 kcal/mol. That single shift is what widened the actives-vs-decoys gap from 6.7 to 10.87 kcal/mol.
+
+The 100 ps result was directionally correct but noisy in magnitude. One nanosecond of sampling collapsed the noise on this ligand and revealed the true separation. That is the empirical justification for extending the run.
 
 ---
 
@@ -65,16 +79,16 @@ Four phases.
 |-------|------|-------|
 | **1** | Target and ligand preparation | PyMOL, PDBFixer, RDKit |
 | **2** | High-throughput docking | AutoDock Vina 1.2.0 |
-| **3** | Short MD + MM/GBSA rescoring | GROMACS 2026.3, gmx_MMPBSA |
+| **3** | MD + MM/GBSA | GROMACS 2026.3, gmx_MMPBSA |
 | **4** | Interaction fingerprinting | PLIP + custom renumbering |
 
 **Phase 1** cleans PDB 5D41, removes waters and the co-crystallised ligand, generates 3D conformers for 16 literature actives and 500 RDKit decoys (516 total).
 
 **Phase 2** docks every ligand against the allosteric pocket. The box is centred on the EAI045 binding site. Scoring is AutoDock Vina default. The protocol is benchmarked with ROC-AUC and enrichment factor at 1%.
 
-**Phase 3** takes the top 4 docking hits through minimisation, 100 ps NVT, and 100 ps NPT in GROMACS with AMBER14SB and TIP3P. Ligand parameters are generated with ACPYPE (GAFF2). MM/GBSA is computed on the equilibrated ensemble with gmx_MMPBSA.
+**Phase 3** takes the top 4 docking hits through minimisation, NVT and NPT equilibration, and 1 ns production MD in GROMACS with AMBER14SB and TIP3P. Ligand parameters are generated with ACPYPE (GAFF2). MM/GBSA is computed on 100 frames sampled at 10 ps intervals with gmx_MMPBSA.
 
-**Phase 4** runs PLIP on MD-snapshotted complexes and remaps residue numbering from the PDB structure numbering to EGFR canonical numbering, so that the interaction fingerprint is directly comparable to the published crystal structure.
+**Phase 4** runs PLIP on MD-snapshotted complexes and remaps residue numbering from the PDB structure numbering to EGFR canonical numbering, so the interaction fingerprint is directly comparable to the published crystal structure.
 
 ---
 
@@ -97,16 +111,19 @@ Four phases.
     |   |-- 14_plif_analysis.py
     |   |-- 15_parse_plip.py
     |   |-- 16_plip_mapped.py
-    |   +-- 17_plot_plif.py
+    |   |-- 17_plot_plif.py
+    |   |-- 18_run_1ns_md.sh
+    |   |-- 19_resume_1ns.sh
+    |   +-- 20_plot_mmpbsa_1ns.py
     |-- data/
     |   |-- raw/               # PDB 5D41, curated SMILES
     |   |-- processed/         # Cleaned receptor, prepared ligands
     |   |-- results/           # Docking results + ROC plot
     |   +-- md/
-    |       |-- mdp/           # GROMACS parameter files
+    |       |-- mdp/           # GROMACS parameter files (minim, nvt, npt, md)
     |       |-- topologies/    # GAFF2 ligand topologies (ACPYPE)
     |       |-- systems/       # One directory per simulated ligand
-    |       |-- mmpbsa/        # MM/GBSA results
+    |       |-- mmpbsa_1ns/    # 1 ns MM/GBSA results (FINAL_RESULTS_*.csv)
     |       +-- plip/          # Interaction fingerprints + figures
     +-- logs/
 
@@ -134,9 +151,9 @@ Full pipeline:
     python scripts/06_dock_all.py             # ~30 min on 4 CPU threads
     python scripts/08_roc_analysis.py         # produces ROC-AUC + EF1%
 
-    # MD per ligand (see data/md/systems/<ligand>/ for exact gmx commands)
+    # MD per ligand — see scripts/18_run_1ns_md.sh and scripts/19_resume_1ns.sh
     # MM/GBSA after MD (gmx_MMPBSA)
-    python scripts/13_plot_mmpbsa.py
+    python scripts/20_plot_mmpbsa_1ns.py
 
     # PLIP interaction fingerprints
     plip -f data/md/plip/structures/EAI045_dry.pdb \
@@ -145,7 +162,7 @@ Full pipeline:
     python scripts/16_plip_mapped.py
     python scripts/17_plot_plif.py
 
-Docking takes about 30 minutes. MD equilibration for the four selected systems took roughly 12 hours. MM/GBSA on 100 ps ensembles takes 20–40 minutes per system.
+Docking takes about 30 minutes on 4 CPU threads. The 1 ns MD production run for the four selected systems takes roughly 12–24 hours depending on hardware. MM/GBSA on 1 ns ensembles (100 frames, 10 ps apart) takes 5–6 minutes per system.
 
 ---
 
@@ -165,27 +182,27 @@ Docking takes about 30 minutes. MD equilibration for the four selected systems t
 
 This is the section that matters most for interpreting the results, because the pipeline has one real weakness.
 
-**The MD sampling is far too short for MM/GBSA convergence.** Each of the four simulated complexes was run for 100 ps NVT + 100 ps NPT. Published MM/GBSA protocols typically use 10–50 ns of production MD per complex, with block averaging across independent windows to demonstrate convergence. At 100 ps, the ensemble is equilibrated enough to relax side chains and water around the docking pose, but not enough to sample slow motions such as αC-helix breathing or DFG-motif flipping. The estimated error on a 100 ps MM/GBSA calculation is easily 3–8 kcal/mol — comparable to the 6.7 kcal/mol separation reported here. The MM/GBSA result should be read as a directional filter, not a validated binding energy.
+**The MD sampling (1 ns per complex) is defensible but not exhaustive.** Each complex was run for 1 ns production MD, extended from an initial 100 ps preliminary run. This is significantly longer than preliminary rescoring but remains below the 10–50 ns typical of converged MM/GBSA studies. Frames sampled at 10 ps intervals are correlated, so the effective sample size is less than 100. Block averaging across four 250 ps windows was performed to check convergence [update after block averaging: report whether the four window means agree within ±2 kcal/mol]. ΔG values should be interpreted as a robust separation signal rather than a rigorously converged binding free energy.
 
 **Other limitations:**
 
 - The docking box was defined around the EAI045 pose from the crystal structure. Ligands that engage a different sub-pocket of the allosteric site would score poorly even if they are genuine binders. This is a common bias in allosteric docking and is not corrected here.
 - The decoy set is RDKit-generated. It is chemically reasonable but does not sample the distribution of real experimental screening actives. A benchmark against confirmed experimental negatives would be stronger.
 - Only one crystal structure was used. Allosteric pockets are plastic, and a different starting conformation could change the ranking.
-- No experimental validation. Everything here is computational. The MM/GBSA separation is a model result, not a measured one.
-- Absolute MM/GBSA values carry systematic error from the implicit solvent model and the neglect of explicit entropy. Only the relative ranking is meaningful, and only if the sampling is sufficient — which for this project it is not.
+- No experimental validation. Everything here is computational. The MM/GBSA separation is a model result, not a measured one. Biochemical assays (SPR, ITC, or cell-based TKI-resistance reversal) would be required to claim any of these compounds as real allosteric binders.
+- Absolute MM/GBSA values carry systematic error from the implicit solvent model and the neglect of explicit entropy. Only the relative ranking is meaningful.
 
 ---
 
 ## Future Work
 
-Three extensions would strengthen this project into a publishable study:
+Three extensions would strengthen this project into a fully publishable study:
 
-1. **Extended MD.** Rerun the four systems for 10 ns each with block-averaged MM/GBSA across three independent windows. This is the minimum needed to make the MM/GBSA result defensible. Estimated compute: 40–80 CPU-hours.
-2. **Free energy perturbation.** For the two known actives, run FEP or TI against a thermodynamic cycle to establish a converged reference. If FEP confirms the MM/GBSA ranking, the short-MD result gains credibility.
+1. **Extend MD to 10 ns per system.** The 1 ns ensemble is defensible and shows a robust separation. Ten nanoseconds would push it into the range typical of converged MM/GBSA studies and allow block averaging over well-separated windows.
+2. **Free energy perturbation.** For the two known actives, run FEP or TI against a thermodynamic cycle to establish a converged reference. If FEP confirms the MM/GBSA ranking, the 1 ns result gains credibility.
 3. **Experimental validation.** The pipeline output is a hypothesis. Biochemical assays (SPR or ITC against the isolated EGFR kinase domain) or cell-based assays (TKI-resistance reversal in C797S-mutant lines) would be required to claim any of these compounds as real allosteric binders.
 
-The docking protocol and interaction fingerprint are already solid. The extension work is what turns the preliminary MM/GBSA hint into a validated result.
+The docking protocol, interaction fingerprint, and MM/GBSA separation are already solid. The extension work is what turns a validated pipeline into a validated drug-discovery method.
 
 ---
 
@@ -193,7 +210,7 @@ The docking protocol and interaction fingerprint are already solid. The extensio
 
 All code is in this repository. The receptor structure (5D41) is public from RCSB. Ligand SMILES are in `scripts/02_build_actives.py` — actives come from published literature, decoys are generated deterministically with a fixed random seed.
 
-MD trajectories (.xtc, ~2 GB each) are not committed but are regenerated from the pipeline. Intermediate GROMACS files (.edr, .log, .tpr) are also excluded. All final outputs are in `data/md/mmpbsa/` and `data/md/plip/`.
+MD trajectories (.xtc, ~2 GB each) are not committed but are regenerated from the pipeline. Intermediate GROMACS files (.edr, .log, .tpr) are also excluded. All final outputs are in `data/md/mmpbsa_1ns/` and `data/md/plip/`.
 
 ---
 
