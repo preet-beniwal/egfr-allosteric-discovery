@@ -2,7 +2,7 @@
 ;	File 'mdout.mdp' was generated
 ;	By user: unknown (1000)
 ;	On host: PreetBeniwal
-;	At date: Thu Oct  1 04:12:01 2026
+;	At date: Thu Oct 15 02:52:44 2026
 ;
 ;	Created by:
 ;	               :-) GROMACS - gmx grompp, 2026.3-conda_forge (-:
@@ -11,7 +11,7 @@
 ;	Data prefix:  /home/preet/miniconda/envs/md
 ;	Working dir:  /home/preet/projects/egfr-allosteric/data/md/systems/decoy_0454
 ;	Command line:
-;	  gmx grompp -f /home/preet/projects/egfr-allosteric/data/md/mdp/npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr -maxwarn 2
+;	  gmx grompp -f /home/preet/projects/egfr-allosteric/data/md/mdp/md_1ns.mdp -c npt.gro -t npt.cpt -p topol.top -o md_1ns.tpr -maxwarn 2
 
 ; VARIOUS PREPROCESSING OPTIONS
 ; Preprocessor information: use cpp syntax.
@@ -25,7 +25,7 @@ integrator               = md
 ; Start time and timestep in ps
 tinit                    = 0
 dt                       = 0.002
-nsteps                   = 50000
+nsteps                   = 500000
 ; For exact run continuation or redoing part of a run
 init-step                = 0
 ; Part index is updated automatically on checkpointing (keeps files separate)
@@ -175,7 +175,7 @@ annealing-temp           =
 ; GENERATE VELOCITIES FOR STARTUP RUN
 gen_vel                  = no
 gen-temp                 = 300
-gen-seed                 = -17122818
+gen-seed                 = -564273162
 
 ; OPTIONS FOR BONDS    
 constraints              = h-bonds

@@ -154,3 +154,18 @@ ATOMTYPE.INF
 sqm.*
 .acpype_tmp_*/
 *.acpype/
+# MM/GBSA 1 ns intermediates (large, regenerable)
+data/md/mmpbsa_1ns/*/RESULTS_gmx_MMPBSA.h5
+data/md/mmpbsa_1ns/*/traj_dry.xtc
+data/md/mmpbsa_1ns/*/structure_dry.pdb
+data/md/mmpbsa_1ns/*/topol.top
+data/md/mmpbsa_1ns/*/mmpbsa.ndx
+data/md/mmpbsa_1ns/*/gmx_MMPBSA.log
+data/md/mmpbsa_1ns/*/*.itp
+data/md/mmpbsa_1ns/*/md_1ns.tpr
+
+# GROMACS MD run binaries (regenerable from .mdp + structure)
+data/md/systems/*/md_1ns.tpr
+data/md/systems/*/md_1ns.cpt
+data/md/systems/*/md_1ns_prev.cpt
+data/md/systems/*/md_1ns.gro
