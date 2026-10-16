@@ -1,0 +1,5 @@
+ligand	block0	block1	block2	block3	mean	std	range	category
+EAI045	-44.02	-47.58	-49.51	-46.53	-46.91	2.29	5.49	Active
+EAI001	-47.27	-48.57	-52.76	-49.61	-49.55	2.34	5.49	Active
+decoy_0086	-39.5	-36.14	-32.52	-33.89	-35.51	3.05	6.98	Decoy
+decoy_0454	-38.26	-39.56	-39.43	-39.58	-39.21	0.64	1.32	Decoy

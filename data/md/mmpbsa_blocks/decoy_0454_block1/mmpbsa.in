@@ -1,0 +1,11 @@
+&general
+   startframe=26,
+   endframe=50,
+   interval=1,
+   verbose=1,
+   keep_files=0,
+/
+&gb
+   igb=5,
+   saltcon=0.150,
+/

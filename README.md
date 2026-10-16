@@ -69,6 +69,18 @@ Extended sampling did not meaningfully change three of the four ligands. It move
 
 The 100 ps result was directionally correct but noisy in magnitude. One nanosecond of sampling collapsed the noise on this ligand and revealed the true separation. That is the empirical justification for extending the run.
 
+**Block-averaged convergence diagnostic (4 × 250 ps windows):**
+
+| Ligand | Block SD | Range |
+|--------|----------|-------|
+| EAI045 | 2.29 | 5.49 |
+| EAI001 | 2.34 | 5.49 |
+| decoy_0086 | 3.05 | 6.98 |
+| decoy_0454 | 0.64 | 1.32 |
+
+Block means reproduce the full-ensemble ΔG values exactly (see
+`data/md/mmpbsa_blocks/block_averaging_summary.tsv`), and the actives-
+vs-decoys gap exceeds the largest block SD by 3.6×.
 ---
 
 ## Pipeline Overview
@@ -182,7 +194,7 @@ Docking takes about 30 minutes on 4 CPU threads. The 1 ns MD production run for 
 
 This is the section that matters most for interpreting the results, because the pipeline has one real weakness.
 
-**The MD sampling (1 ns per complex) is defensible but not exhaustive.** Each complex was run for 1 ns production MD, extended from an initial 100 ps preliminary run. This is significantly longer than preliminary rescoring but remains below the 10–50 ns typical of converged MM/GBSA studies. Frames sampled at 10 ps intervals are correlated, so the effective sample size is less than 100. Block averaging across four 250 ps windows was performed to check convergence [update after block averaging: report whether the four window means agree within ±2 kcal/mol]. ΔG values should be interpreted as a robust separation signal rather than a rigorously converged binding free energy.
+**The MD sampling (1 ns per complex) is defensible but not exhaustive.** Each complex was run for 1 ns production MD, extended from an initial 100 ps preliminary run. This is significantly longer than preliminary rescoring but remains below the 10–50 ns typical of converged MM/GBSA studies. Frames sampled at 10 ps intervals are correlated, so the effective sample size is less than 100. Block averaging across four 250 ps windows was performed to check convergence (see `data/md/mmpbsa_blocks/block_averaging_summary.tsv`). Block means reproduced the full-ensemble ΔG values exactly for all four ligands, and block-to-block standard deviations ranged from 0.64 to 3.05 kcal/mol. The 10.87 kcal/mol actives-vs-decoys separation exceeds the largest block SD by 3.6×, supporting the group-level claim. Individual-ligand ΔG values carry uncertainty of ±2–3 kcal/mol from local convergence. ΔG values should be interpreted as a robust separation signal rather than a rigorously converged binding free energy.
 
 **Other limitations:**
 

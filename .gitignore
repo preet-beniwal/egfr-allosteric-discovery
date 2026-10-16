@@ -169,3 +169,11 @@ data/md/systems/*/md_1ns.tpr
 data/md/systems/*/md_1ns.cpt
 data/md/systems/*/md_1ns_prev.cpt
 data/md/systems/*/md_1ns.gro
+
+# Block averaging intermediates (large, regenerable)
+data/md/mmpbsa_blocks/*/RESULTS_gmx_MMPBSA.h5
+data/md/mmpbsa_blocks/*/traj_dry.xtc
+data/md/mmpbsa_blocks/*/block.xtc
+data/md/mmpbsa_blocks/*/gmx_MMPBSA.log
+data/md/mmpbsa_blocks/*/run.log
+data/md/mmpbsa_blocks/*/trjconv.log
