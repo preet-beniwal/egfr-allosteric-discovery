@@ -22,6 +22,27 @@ AutoDock Vina separated 16 literature-validated allosteric EGFR inhibitors from 
 
 For allosteric site docking this is very high. Published benchmarks for allosteric pockets typically land between 0.60 and 0.75, because the shallower, more flexible geometry makes scoring harder. A value of 0.994 means the pocket definition, box placement, and scoring parameters are correct before any MD is attempted. This is the strongest result in the project because it does not depend on anything downstream.
 
+### Cross-engine validation: Vina vs AutoDock4
+
+To confirm the docking signal was not an artifact of a single scoring
+function, all 516 ligands were re-docked with AutoDock4 scoring
+(`smina --scoring ad4_scoring`), using the identical receptor, ligand
+preparation, and search box.
+
+| Engine | ROC-AUC | EF1% |
+|--------|---------|------|
+| AutoDock Vina 1.2.0 | 0.994 | 25.80 |
+| AutoDock4 (smina) | 0.983 | 25.80 |
+
+Both engines achieved near-perfect separation (ROC-AUC > 0.98) and
+identified the **exact same enrichment** in the top 1% (EF1 = 25.80).
+The near-identical performance across two independent empirical force
+fields confirms that the actives-vs-decoys separation is a fundamental
+property of the allosteric pocket and ligand set, not a Vina-specific
+artifact.
+
+![Docking engine comparison](data/results_ad4/roc_comparison.png)
+
 ### 2. Interaction fingerprinting recovered the experimental binding mode
 
 The top 4 docking hits (2 known actives, 2 false positives) were simulated in MD and analysed with PLIP. Residue numbers were remapped to EGFR canonical numbering.
