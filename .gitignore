@@ -180,3 +180,5 @@ data/md/mmpbsa_blocks/*/trjconv.log
 
 # AutoDock4 full-run outputs (large, regenerable)
 data/results_ad4/full_run/
+data/results_ad4/EAI045_test*.pdbqt
+data/results_ad4/EAI045_fixedbox.pdbqt
